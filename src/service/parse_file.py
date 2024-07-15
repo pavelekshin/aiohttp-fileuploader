@@ -1,7 +1,7 @@
 import pandas as pd
 from pandas import DataFrame
 
-import database
+from src import database
 
 
 async def xlsx_to_db(file):

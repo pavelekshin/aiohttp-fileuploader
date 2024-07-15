@@ -2,7 +2,7 @@ import logging
 
 from aiohttp import web
 
-from app import init_app
+from src.app import init_app
 
 
 def run():

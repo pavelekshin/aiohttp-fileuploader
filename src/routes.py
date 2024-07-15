@@ -4,8 +4,8 @@ import aiohttp
 from aiohttp import web
 from aiohttp.web_request import Request
 
-from data.data_folder import get_data_folder
-from service import parse_file
+from src.data.data_folder import get_data_folder
+from src.service import parse_file
 from settings import settings
 
 CHUNK_SIZE = 8192

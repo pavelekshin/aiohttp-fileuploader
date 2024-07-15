@@ -1,6 +1,6 @@
 from dynaconf import Dynaconf
 
-from config.config import PostgreSQL
+from src.config.config import PostgreSQL
 
 settings = Dynaconf(
     envvar_prefix=False,
