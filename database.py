@@ -3,7 +3,7 @@ from typing import Any
 from sqlalchemy import (
     Column,
     CursorResult,
-    Delete,
+    DateTime,
     Identity,
     Insert,
     Integer,
@@ -11,7 +11,7 @@ from sqlalchemy import (
     Select,
     String,
     Table,
-    Update,
+    func,
 )
 from sqlalchemy.ext.asyncio import async_engine_from_config
 
@@ -31,21 +31,23 @@ engine = async_engine_from_config(db_settings.config)
 metadata = MetaData(naming_convention=DB_NAMING_CONVENTION)
 
 auth_user = Table(
-    "inset_table",
+    "user_email",
     metadata,
     Column("id", Integer, Identity(), primary_key=True),
     Column("email", String, nullable=False),
     Column("password", String, nullable=False),
+    Column("age", Integer, nullable=True),
+    Column("created_at", DateTime, server_default=func.now(), nullable=False),
 )
 
 
-async def fetch_one(select_query: Select | Insert | Update) -> dict[str, Any] | None:
+async def fetch_one(query: Select) -> dict[str, Any] | None:
     async with engine.begin() as conn:
-        cursor: CursorResult = await conn.execute(select_query)
+        cursor: CursorResult = await conn.execute(query)
         result = cursor.first()
         return result._asdict() if result else None
 
 
-async def execute(select_query: Insert | Update | Delete) -> None:
+async def execute(query: Insert, value: list[dict]) -> None:
     async with engine.begin() as conn:
-        await conn.execute(select_query)
+        await conn.execute(query, value)

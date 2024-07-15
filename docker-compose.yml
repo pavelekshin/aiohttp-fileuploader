@@ -1,0 +1,13 @@
+version: '3.7'
+
+services:
+  app_db:
+    container_name: app_db_webupload
+    hostname: app_db
+    image: postgres:16-alpine3.19
+    env_file:
+      - .env
+    expose:
+      - 5432
+    ports:
+      - "15432:5432"

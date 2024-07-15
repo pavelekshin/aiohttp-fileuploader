@@ -79,15 +79,38 @@ function uploadFiles(files) {
   xhr.send(data);
 }
 
+function formatBytes(bytes) {
+    let marker = 1024; // Change to 1000 if required
+    const decimal = 2; // Change as required
+    let kiloBytes = marker; // One Kilobyte is 1024 bytes
+    let megaBytes = marker * marker; // One MB is 1024 KB
+    let gigaBytes = marker * marker * marker; // One GB is 1024 MB
+
+    // return bytes if less than a KB
+    if (bytes < kiloBytes) return bytes + " Bytes";
+    // return KB if less than a MB
+    else if (bytes < megaBytes) return (bytes / kiloBytes).toFixed(decimal) + " KB";
+    // return MB if less than a GB
+    else if (bytes < gigaBytes) return (bytes / megaBytes).toFixed(decimal) + " MB";
+    // return GB if less than a TB
+    else return (bytes / gigaBytes).toFixed(decimal) + " GB";
+}
+
+
 function renderFilesMetadata(fileList) {
+
+  const fileTypes = ["application/vnd.ms-excel", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"];
+
   fileNum.textContent = fileList.length;
 
   fileListMetadata.textContent = "";
 
   for (const file of fileList) {
     const name = file.name;
-    const type = file.type;
-    const size = file.size;
+    let type = file.type;
+    const size = formatBytes(file.size);
+
+    if (fileTypes.includes(type)) type = "Excel";
 
     fileListMetadata.insertAdjacentHTML(
       "beforeend",
@@ -95,14 +118,14 @@ function renderFilesMetadata(fileList) {
         <li>
           <p><strong>Name:</strong> ${name}</p>
           <p><strong>Type:</strong> ${type}</p>
-          <p><strong>Size:</strong> ${size} bytes</p>
+          <p><strong>Size:</strong> ${size}</p>
         </li>`
     );
   }
 }
 
 function assertFilesValid(fileList) {
-  const allowedTypes = ["image/jpeg", "image/png", "text/csv", "application/vnd.ms-excel", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"];
+  const allowedTypes = ["text/csv", "application/vnd.ms-excel", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"];
   const sizeLimit = 1024 * 1024 * 50; // 50 megabyte
 
   for (const file of fileList) {

@@ -1,9 +1,11 @@
+import asyncio
+
 import aiohttp
-import pandas as pd
 from aiohttp import web
 from aiohttp.web_request import Request
 
 from data.data_folder import get_data_folder
+from service import parse_file
 from settings import settings
 
 CHUNK_SIZE = 8192
@@ -22,12 +24,6 @@ def setup_routes(app: web.Application):
 
 
 background_tasks = set()
-
-
-async def pandas_to_db(save_file):
-    with pd.ExcelFile(save_file) as xls:
-        df = pd.read_excel(xls, sheet_name=None)
-        print(df)
 
 
 async def handle_file_upload(request: Request):
@@ -54,10 +50,8 @@ async def handle_file_upload(request: Request):
                     break
                 size += len(chunk)
                 f.write(chunk)
-
-        await pandas_to_db(save_file)
-        # task = asyncio.create_task(pandas(save_file))
-    #     background_tasks.add(task)
-    #     task.add_done_callback(background_tasks.remove)
-    # await asyncio.wait(background_tasks)
+        task = asyncio.create_task(parse_file.xlsx_to_db(save_file))
+        background_tasks.add(task)
+        task.add_done_callback(background_tasks.remove)
+    await asyncio.wait(background_tasks)
     return web.Response(text="Uploaded", status=200)
