@@ -6,11 +6,11 @@ from aiohttp.web_request import Request
 
 from src.data.data_folder import get_data_folder
 from src.service import parse_file
-from settings import settings
+from src.settings import settings
 
 CHUNK_SIZE = 8192
 CONTENT_TYPE = settings.CONTENT_TYPE
-MAX_FILE_SIZE = 1024 * 1024 * settings.MAX_FILE_SIZE  # 50MB
+MAX_FILE_SIZE = 1024 * 1024 * settings.MAX_FILE_SIZE  # 100MB
 
 
 async def index(request: Request):

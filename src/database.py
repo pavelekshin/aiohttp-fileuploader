@@ -15,7 +15,7 @@ from sqlalchemy import (
 )
 from sqlalchemy.ext.asyncio import async_engine_from_config
 
-from settings import db_settings, settings
+from src.settings import db_settings, settings
 
 DB_NAMING_CONVENTION = {
     "ix": "ix_%(column_0_label)s",
@@ -30,13 +30,12 @@ DATABASE_URL = str(settings.DATABASE_URL)
 engine = async_engine_from_config(db_settings.config)
 metadata = MetaData(naming_convention=DB_NAMING_CONVENTION)
 
-auth_user = Table(
-    "user_email",
+user_phone_ls = Table(
+    "user_ls_phone",
     metadata,
     Column("id", Integer, Identity(), primary_key=True),
-    Column("email", String, nullable=False),
-    Column("password", String, nullable=False),
-    Column("age", Integer, nullable=True),
+    Column("phone_number", String, nullable=False),
+    Column("ls", String, nullable=False),
     Column("created_at", DateTime, server_default=func.now(), nullable=False),
 )
 
