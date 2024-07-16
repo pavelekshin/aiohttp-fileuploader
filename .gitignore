@@ -137,3 +137,7 @@ dmypy.json
 
 #VIM
 *.un~
+#Doc
+*.xlsx
+*.xls
+*.csv
