@@ -5,3 +5,5 @@ asyncpg~=0.28.0
 SQLAlchemy~=2.0.31
 ruff
 dynaconf
+aiofile==3.8.8
+pandas==2.2.2
