@@ -47,38 +47,6 @@ function handleInputChange(event) {
   submitButton.disabled = false;
 }
 
-function uploadFiles(files) {
-  const url = window.location.origin + window.location.pathname
-  const method = "POST";
-
-  const xhr = new XMLHttpRequest();
-
-  xhr.upload.addEventListener("progress", (event) => {
-    updateStatusMessage(`⏳ Uploaded ${event.loaded} bytes of ${event.total}`);
-    updateProgressBar(event.loaded / event.total);
-  });
-
-  xhr.addEventListener("loadend", () => {
-    if (xhr.status === 200) {
-      updateStatusMessage("✅ Файл успешно загружен");
-      renderFilesMetadata(files);
-    } else {
-      updateStatusMessage("❌ Возникла ошибка: " + xhr.responseText);
-    }
-
-    updateProgressBar(0);
-  });
-
-  const data = new FormData();
-
-  for (const file of files) {
-    data.append("file", file);
-  }
-
-  xhr.open(method, url);
-  xhr.send(data);
-}
-
 function formatBytes(bytes) {
     let marker = 1024; // Change to 1000 if required
     const decimal = 2; // Change as required
@@ -96,13 +64,45 @@ function formatBytes(bytes) {
     else return (bytes / gigaBytes).toFixed(decimal) + " GB";
 }
 
+function uploadFiles(files) {
+  const url = window.location.origin + window.location.pathname
+  const method = "POST";
+
+  const xhr = new XMLHttpRequest();
+
+  xhr.upload.addEventListener("progress", (event) => {
+    let loaded = formatBytes(event.loaded);
+    let total = formatBytes(event.total)
+    updateStatusMessage(`⏳ Загружено ${loaded} из ${total}`);
+//    updateStatusMessage(`⏳ Uploaded ${event.loaded} bytes of ${event.total}`);
+    updateProgressBar(loaded/total);
+  });
+
+  xhr.addEventListener("loadend", () => {
+    if (xhr.status === 200) {
+      updateStatusMessage("✅ Файл успешно загружен");
+      renderJSONResponse(files, xhr.response);
+//      renderFilesMetadata(fileList);
+    } else {
+      updateStatusMessage("❌ Возникла ошибка: " + xhr.responseText);
+    }
+
+    updateProgressBar(0);
+  });
+
+  const data = new FormData();
+
+  for (const file of files) {
+    data.append("file", file);
+  }
+
+  xhr.open(method, url);
+  xhr.send(data);
+}
 
 function renderFilesMetadata(fileList) {
-
   const fileTypes = ["application/vnd.ms-excel", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"];
-
   fileNum.textContent = fileList.length;
-
   fileListMetadata.textContent = "";
 
   for (const file of fileList) {
@@ -116,9 +116,29 @@ function renderFilesMetadata(fileList) {
       "beforeend",
       `
         <li>
-          <p><strong>Name:</strong> ${name}</p>
-          <p><strong>Type:</strong> ${type}</p>
-          <p><strong>Size:</strong> ${size}</p>
+          <p><strong>Файл:</strong> ${name}</p>
+          <p><strong>Тип:</strong> ${type}</p>
+          <p><strong>Размер:</strong> ${size}</p>
+        </li>`
+    );
+  }
+}
+
+function renderJSONResponse(fileList, response) {
+  const json_obj = JSON.parse(response);
+  fileNum.textContent = fileList.length;
+  fileListMetadata.textContent = "";
+
+  for (const file of json_obj) {
+    const name = file.filename;
+    let rows = file.rows;
+
+    fileListMetadata.insertAdjacentHTML(
+      "beforeend",
+      `
+        <li>
+          <p><strong>Файл:</strong> ${name}</p>
+          <p><strong>Строк:</strong> ${rows}</p>
         </li>`
     );
   }
@@ -126,7 +146,7 @@ function renderFilesMetadata(fileList) {
 
 function assertFilesValid(fileList) {
   const allowedTypes = ["text/csv", "application/vnd.ms-excel", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"];
-  const sizeLimit = 1024 * 1024 * 50; // 50 megabyte
+  const sizeLimit = 1024 * 1024 * 150; // 150 megabyte
 
   for (const file of fileList) {
     const { name: fileName, size: fileSize } = file;
@@ -134,13 +154,13 @@ function assertFilesValid(fileList) {
     if (!allowedTypes.includes(file.type)) {
       console.log(file.type)
       throw new Error(
-        `❌ File "${fileName}" could not be uploaded. Only following types are allowed: CSV, XLS, XLSX`
+        `❌ Файл "${fileName}" не может быть загружен. Поддерживаемый формат файлов: CSV, XLS, XLSX`
       );
     }
 
     if (fileSize > sizeLimit) {
       throw new Error(
-        `❌ File "${fileName}" could not be uploaded. Only file up to 50 MB are allowed.`
+        `❌ Файл "${fileName}" не может быть загружен. Максимальный размер файлов - 150 MB`
       );
     }
   }

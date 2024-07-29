@@ -1,16 +1,14 @@
-from typing import Any
-
 from sqlalchemy import (
     Column,
-    CursorResult,
     DateTime,
+    Delete,
     Identity,
     Insert,
     Integer,
     MetaData,
-    Select,
     String,
     Table,
+    Update,
     func,
 )
 from sqlalchemy.ext.asyncio import async_engine_from_config
@@ -30,7 +28,7 @@ DATABASE_URL = str(settings.DATABASE_URL)
 engine = async_engine_from_config(db_settings.config)
 metadata = MetaData(naming_convention=DB_NAMING_CONVENTION)
 
-user_phone_ls = Table(
+table_phone_ls = Table(
     "user_ls_phone",
     metadata,
     Column("id", Integer, Identity(), primary_key=True),
@@ -39,14 +37,36 @@ user_phone_ls = Table(
     Column("created_at", DateTime, server_default=func.now(), nullable=False),
 )
 
+table_enterprise_survey = Table(
+    "enterprise_survey",
+    metadata,
+    Column("year", Integer),
+    Column("industry_aggregation_nzsioc", String),
+    Column("industry_code_nzsioc", String),
+    Column("industry_name_nzsioc", String),
+    Column("units", String),
+    Column("variable_code", String),
+    Column("variable_name", String),
+    Column("variable_category", String),
+    Column("value", String, nullable=True),
+)
 
-async def fetch_one(query: Select) -> dict[str, Any] | None:
+table_geo = Table(
+    "geo",
+    metadata,
+    Column("anzsic06", String, nullable=False),
+    Column("area", String),
+    Column("year", Integer, nullable=False),
+    Column("geo_count", Integer, nullable=False),
+    Column("ec_count", Integer, nullable=False),
+)
+
+
+async def execute(query: Insert | Update | Delete) -> None:
     async with engine.begin() as conn:
-        cursor: CursorResult = await conn.execute(query)
-        result = cursor.first()
-        return result._asdict() if result else None
+        await conn.execute(query)
 
 
-async def execute(query: Insert, value: list[dict]) -> None:
+async def insert_many(query: Insert, value: list[dict]) -> None:
     async with engine.begin() as conn:
         await conn.execute(query, value)

@@ -27,7 +27,6 @@ target_metadata = metadata
 # ... etc.
 
 DATABASE_URL = str(db_settings.sa_database_uri)
-print(DATABASE_URL)
 #
 db_driver = DATABASE_URL.split(":")[0]
 db_driver_parts = db_driver.split("+")

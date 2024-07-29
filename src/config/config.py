@@ -1,8 +1,10 @@
 from typing import Any
 
+from src.db.db_folder import get_db_path
+
 
 class SqlAlchemyConfig:
-    """Base config, used for staging SQLAlchemy Engine."""
+    """Base config, used for SQLAlchemy Engine."""
 
     __test__ = False
 
@@ -12,7 +14,7 @@ class SqlAlchemyConfig:
 
     @property
     def sa_database_uri(self) -> str:
-        if self.__class__ is PostgreSQL:
+        if self.__class__ is PostgreSQL or SQLite:
             return self.DATABASE_URL
         else:
             raise NotImplementedError("This DB not implemented!")
@@ -34,7 +36,7 @@ class SqlAlchemyConfig:
 
 
 class PostgreSQL(SqlAlchemyConfig):
-    """Uses for PostgresSQL database server."""
+    """Used for PostgresSQL database server."""
 
     ECHO: bool = False
     ENGINE_OPTIONS: dict[str, Any] = {
@@ -42,5 +44,22 @@ class PostgreSQL(SqlAlchemyConfig):
         "pool_pre_ping": True,
     }
 
-    def __init__(self, url):
+    def __init__(self, url, echo=None):
         self.DATABASE_URL = url
+        if echo:
+            self.ECHO = echo
+
+
+class SQLite(SqlAlchemyConfig):
+    """Used for SQLite database server."""
+
+    ECHO: bool = True
+    DB_NAME: str = "webupload.sqlite"
+    ENGINE_OPTIONS: dict[str, Any] = {
+        "pool_pre_ping": True,
+    }
+
+    def __init__(self, db_name: str):
+        if db_name.strip():
+            self.DB_NAME = db_name
+        self.DATABASE_URL = f"sqlite+aiosqlite:///{get_db_path(self.DB_NAME)}"
