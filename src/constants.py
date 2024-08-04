@@ -2,7 +2,9 @@ from enum import Enum
 
 
 class Tables(Enum):
-    LS_PHONE = sorted(["ls", "phone_number"])
+    LS_PHONE = sorted(
+        ["ls", "phone_number"]
+    )
     ENT_SURVEY = sorted(
         [
             "year",
@@ -16,12 +18,15 @@ class Tables(Enum):
             "value",
         ]
     )
-    GEO = sorted(["anzsic06", "area", "year", "geo_count", "ec_count"])
+    GEO = sorted(
+        ["anzsic06", "area", "year", "geo_count", "ec_count"]
+    )
 
 
 class ErrorCode:
     INTERNAL_SERVER_ERROR = "Internal Server error"
     FILE_ERROR = "File error"
+    INVALID_FILE_ID = "Invalid file id"
 
 
 class ErrorMessage:

@@ -7,4 +7,4 @@ settings = Dynaconf(
     load_dotenv=True,
 )
 
-db_settings = PostgreSQL(url=settings.DATABASE_URL)
+db_settings = PostgreSQL(url=settings.DATABASE_URL, echo=True)

@@ -141,3 +141,5 @@ dmypy.json
 *.xlsx
 *.xls
 *.csv
+/src/templates/bkp/
+/src/templates/status/

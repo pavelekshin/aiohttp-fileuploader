@@ -1,13 +1,64 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="ru" xmlns="http://www.w3.org/1999/html">
 <head>
     <title>Загрузчик файлов</title>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <link rel="stylesheet" type="text/css" href="/static/style/style.css"/>
+    <script src="https://cdn.jsdelivr.net/npm/handlebars@latest/dist/handlebars.js"></script>
+    <script src="/static/js/handler.js"></script>
+    <script>
+        var store = {
+          files: {},
+        };
+
+        app_pages = {
+            main:  {},
+            files: {},
+        }
+
+        window.addEventListener("load", (event) => {
+                app.run('main');
+                loadUploader();
+        });
+
+        function loadUploader() {
+            var script = document.createElement('script');
+            script.src = '/static/js/uploader.js';
+            document.body.appendChild(script);
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+
+        app = new handler({
+          store: store,
+          container: "#app",
+          pages: app_pages,
+          url: window.location.origin + window.location.pathname
+        });
+
+        Handlebars.registerHelper("incremented", function (index) {
+            return index + 1;
+        });
+
+        app.addHandler("main", (data)=> {
+            app.go("main");
+        })
+
+        app.addHandler("files", (data)=> {
+           app.go("files");
+        })
+    })
+    </script>
 </head>
 <body>
-<div id="app">
+<div id="content">
+    <section id="app">
+        Загружаем
+    </section>
+</div>
+
+<template id="main">
     <h1>Загрузчик файлов</h1>
     <div id="dropArea">
         <p>
@@ -15,12 +66,12 @@
         </p>
     </div>
     <form>
-        <input name="file" multiple type="file" accept="text/csv, application/vnd.ms-excel, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet">
+        <input name="file" multiple type="file"
+               accept="text/csv, application/vnd.ms-excel, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet">
         <button type="submit" disabled>Загрузить</button>
     </form>
 
     <progress value="0" max="100"></progress>
-
     <p>
         <strong>Статус загрузки:</strong>
         <span id="statusMessage">🤷‍♂ Пока нет загруженных файлов</span>
@@ -32,7 +83,51 @@
     </p>
 
     <ul id="fileListMetadata"></ul>
+</template>
+
+
+<template id="files">
+    <div class="container">
+        <section>
+            <h1 class="center">Страница выбора приложения</h1>
+            <p class="center">Выберите одно из приложений для продолжения.</p>
+            <div class="center">
+                <div class="alert mb" onclick="redirect('/riddle')"><span class="name">Riddle App</span></div>
+                <div class="alert mb" onclick="redirect('/trivia')"><span class="name">Trivia App</span></div>
+                <div class="alert mb" onclick="redirect('/chat')"><span class="name">Chat App</span></div>
+            </div>
+        </section>
+    </div>
+</template>
+
+<div id="button">
+    <button id="go_main" class="tappable block" onclick="app.run('main')">Загрузка файлов</button>
+    <button id="go_files" class="tappable block" onclick="app.run('files')">Управление</button>
 </div>
-<script src="/static/js/uploader.js"></script>
+
+<script>
+
+    const button_main = document.getElementById('go_main');
+    button_main.addEventListener('click', function(){ loadUploader();}, false);
+
+
+<!--    const content = document.getElementById('content');-->
+<!--    const config = {attributes: false, childList: true, subtree: true };-->
+<!--    var observer = new MutationObserver(function(mutations) {-->
+<!--      mutations.forEach(function(mutation) {-->
+<!--        if (mutation.type === "childList" && mutation.target.id === "app") {-->
+<!--            {-->
+<!--               console.log(`The ${mutation.target.id} was modified.`);-->
+<!--               loadUploader();-->
+<!--            }-->
+<!--        }-->
+<!--        else if (mutation.type === "attributes") {-->
+<!--            console.log(`The ${mutation.attributeName} attribute was modified.`);-->
+<!--        }-->
+<!--      });-->
+<!--    });-->
+<!--    observer.observe(content, config);-->
+
+</script>
 </body>
 </html>

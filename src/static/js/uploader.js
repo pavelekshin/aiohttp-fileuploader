@@ -1,17 +1,38 @@
-const form = document.querySelector("form");
-const fileInput = document.querySelector("input");
-const submitButton = document.querySelector("button");
-const statusMessage = document.getElementById("statusMessage");
-const fileListMetadata = document.getElementById("fileListMetadata");
-const fileNum = document.getElementById("fileNum");
-const progressBar = document.querySelector("progress");
-const dropArea = document.getElementById("dropArea");
+var form = document.querySelector("form");
+var fileInput = document.querySelector("input");
+var submitButton = document.querySelector("button");
+var statusMessage = document.getElementById("statusMessage");
+var fileListMetadata = document.getElementById("fileListMetadata");
+var fileNum = document.getElementById("fileNum");
+var progressBar = document.querySelector("progress");
+var dropArea = document.getElementById("dropArea");
 
 form.addEventListener("submit", handleSubmit);
 fileInput.addEventListener("change", handleInputChange);
 dropArea.addEventListener("drop", handleDrop);
 
 initDropAreaHighlightOnDrag();
+
+function load_page(event, pathname){
+    event.preventDefault();
+    const url = window.location.origin + pathname
+    let con = document.getElementById("content");
+    let xhr = new XMLHttpRequest();
+
+    xhr.onreadystatechange = function(e) {
+        if(xhr.readyState == 4 && xhr.status == 200) {
+        var parser = new DOMParser();
+        var doc = parser.parseFromString(xhr.responseText, "text/html");
+        var elem = doc.getElementById("content");
+        con.replaceWith(elem);
+        }
+     }
+
+
+    xhr.open("GET", url, true);
+        xhr.setRequestHeader('Content-type', 'text/html');
+    xhr.send();
+ }
 
 function handleSubmit(event) {
   event.preventDefault();
@@ -48,11 +69,11 @@ function handleInputChange(event) {
 }
 
 function formatBytes(bytes) {
-    let marker = 1024; // Change to 1000 if required
+    var marker = 1024; // Change to 1000 if required
     const decimal = 2; // Change as required
-    let kiloBytes = marker; // One Kilobyte is 1024 bytes
-    let megaBytes = marker * marker; // One MB is 1024 KB
-    let gigaBytes = marker * marker * marker; // One GB is 1024 MB
+    var kiloBytes = marker; // One Kilobyte is 1024 bytes
+    var megaBytes = marker * marker; // One MB is 1024 KB
+    var gigaBytes = marker * marker * marker; // One GB is 1024 MB
 
     // return bytes if less than a KB
     if (bytes < kiloBytes) return bytes + " Bytes";
@@ -65,15 +86,15 @@ function formatBytes(bytes) {
 }
 
 function uploadFiles(files) {
-  const url = window.location.origin + window.location.pathname
+  const url = window.location.origin + window.location.pathname + 'upload'
   const method = "POST";
 
   const xhr = new XMLHttpRequest();
 
   xhr.upload.addEventListener("progress", (event) => {
-    let loaded = formatBytes(event.loaded);
-    let total = formatBytes(event.total)
-    updateStatusMessage(`⏳ Загружено ${loaded} из ${total}`);
+    var loaded = event.loaded;
+    var total = event.total;
+    updateStatusMessage(`⏳ Загружено ${formatBytes(loaded)} из ${formatBytes(total)}`);
 //    updateStatusMessage(`⏳ Uploaded ${event.loaded} bytes of ${event.total}`);
     updateProgressBar(loaded/total);
   });
@@ -197,7 +218,6 @@ function initDropAreaHighlightOnDrag() {
     if (dragEventCounter === 0) {
       dropArea.classList.add("highlight");
     }
-
     dragEventCounter += 1;
   });
 
@@ -214,7 +234,6 @@ function initDropAreaHighlightOnDrag() {
     event.preventDefault();
 
     dragEventCounter -= 1;
-
     if (dragEventCounter <= 0) {
       dragEventCounter = 0;
       dropArea.classList.remove("highlight");
@@ -223,7 +242,6 @@ function initDropAreaHighlightOnDrag() {
 
   dropArea.addEventListener("drop", (event) => {
     event.preventDefault();
-
     dragEventCounter = 0;
     dropArea.classList.remove("highlight");
   });

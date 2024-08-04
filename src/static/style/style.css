@@ -61,6 +61,16 @@ progress {
   text-align: center;
 }
 
+#button {
+  background: #fff;
+  padding: 20px 30px;
+  border-radius: 15px;
+  width: 620px;
+  margin: 0 auto;
+  text-align: center;
+  display: flex;
+}
+
 #dropArea {
   margin: 0 auto;
   border: 2px dashed transparent;
@@ -78,6 +88,21 @@ progress {
     right 0% / 400% 100% no-repeat;
 }
 
+.bold {
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+.tappable {
+    background-color: #0076FE;
+    color: #fff;
+    padding: 1em;
+}
+
+.block {
+    display: block;
+    width: 30%;
+}
 input[type="file"]::file-selector-button {
   margin: 0 20px 10px 0;
 }
@@ -94,11 +119,6 @@ input[type="file"] {
   font-size: 16px;
 }
 
-.bold {
-  font-weight: bold;
-  text-transform: uppercase;
-}
-
 button:disabled,
 button:disabled:hover {
   background: #ddd;
@@ -106,7 +126,6 @@ button:disabled:hover {
   color: #313131;
   color: #fff;
   cursor: auto;
-
 }
 
 button,

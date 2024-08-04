@@ -15,6 +15,10 @@ class FileError(DetailedError):
     error_message = ErrorMessage.INVALID_FILE_TYPE
 
 
+class InvalidFileIdError(DetailedError):
+    error_code = ErrorCode.INVALID_FILE_ID
+
+
 class FileSizeError(DetailedError):
     error_code = ErrorCode.FILE_ERROR
     error_message = ErrorMessage.FILE_TO_BIG

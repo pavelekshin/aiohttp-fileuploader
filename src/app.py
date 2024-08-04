@@ -6,12 +6,16 @@ from src.exception_handlers import (
     base_exception_handler,
     file_size_error_exception_handler,
     file_structure_error_exception_handler,
-    file_type_error_exception_handler,
+    file_type_error_exception_handler, file_id_error_exception_handler,
 )
-from src.routes import handle_file_upload, index
+from src.routes import handle_file_upload, index, handle_get_files
 
 
-async def init_app():
+async def init_app() -> web.Application:
+    """
+    Init application settings
+    :return:
+    """
     # Create webapp
     app = web.Application()
     app.cleanup_ctx.append(context)
@@ -54,7 +58,9 @@ def create_error_middleware(overrides):
 
 
 def setup_routes(app: web.Application):
-    app.router.add_route("GET", "/upload", index)
+    app.router.add_route("GET", "/", index)
+    app.router.add_route("GET", "/status", index)
+    app.router.add_route("GET", "/files", handle_get_files)
     app.router.add_route("POST", "/upload", handle_file_upload)
     app.router.add_static("/static", "static")
 
@@ -65,6 +71,7 @@ def setup_middlewares(app):
             "FileError": file_type_error_exception_handler,
             "FileSizeError": file_size_error_exception_handler,
             "FileStructureError": file_structure_error_exception_handler,
+            "InvalidFileIdError": file_id_error_exception_handler,
         }
     )
     app.middlewares.append(error_middleware)
