@@ -143,3 +143,4 @@ dmypy.json
 *.csv
 /src/templates/bkp/
 /src/templates/status/
+/alembic/versions/
