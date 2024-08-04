@@ -1,13 +1,10 @@
 # Aiohttp file uploader
 
-
-
 - AioHTTP
 - SQLAlchemy
 - Alembic for data model and migration
 - Pandas for read CSV/EXCEL
 - JavaScript file uploader
-
 
 well-structured code:
 
@@ -36,11 +33,14 @@ well-structured code:
     ├── database.py
     ├── db
     │   └── db_folder.py
+    ├── modules
+    │   └── mod.py
     ├── exception_handlers.py
     ├── exceptions.py
     ├── main.py
     ├── routes.py
     ├── service
+    │   ├── db.py
     │   ├── parser.py
     │   └── writer.py
     ├── settings.py
