@@ -1,6 +1,5 @@
 import itertools
 from asyncio.log import logger
-from pathlib import Path
 from typing import Any
 
 import pandas as pd
@@ -9,43 +8,43 @@ from pandas import DataFrame
 from src import database
 from src.constants import Tables
 from src.exceptions import FileError, FileStructureError
+from src.modules.mod import File
 from src.service import db
 from src.service.db import delete_file
 from src.settings import settings
 
 
-async def file_to_db(filename: str, filepath: Path) -> dict[str, Any]:
+async def file_to_db(file: File) -> dict[str, Any]:
     """
     Handler for save file into db
-    :param filename: filename
-    :param filepath: filepath
+    :param file: File object
     :return: dict {"rows": count, "status": success or error}
     """
-    suffix = filename.split(".")[-1]
-    match suffix:
+    match file.suffix:
         case "xlsx" | "xls":
-            value, status = await xlsx_to_db(filepath, filename)
+            value, status = await xlsx_to_db(file)
         case "csv":
-            value, status = await csv_to_db(filepath, filename)
+            value, status = await csv_to_db(file)
         case _:
-            raise FileError(f"Provided filetype={suffix} not supported!")
+            raise FileError(f"Provided filetype={file.suffix} not supported!")
     if not status:
-        await db.update_row(filename, value)
+        await db.update_row(file.saved_filename, value)
     return {
         "rows": value,
         "status": "success" if not status else status,
     }
 
 
-async def xlsx_to_db(filepath: Path, filename: str) -> tuple[int, str | None]:
+async def xlsx_to_db(file: File) -> tuple[int, str | None]:
     """
     Excel file handler
-    :param filename: file id
-    :param filepath: filepath
+    :param file: File object
     :return: tuple(row,status)
     """
-    if (insert_file := await db.add_file(filename)) and (file_id := insert_file.get("id")):
-        with pd.ExcelFile(filepath) as xls:
+    if (insert_file := await db.add_file(file.saved_filename)) and (
+        file_id := insert_file.get("id")
+    ):
+        with pd.ExcelFile(file.filepath) as xls:
             df = pd.read_excel(xls, sheet_name=None)
             for _page, row in df.items():
                 row.rename(columns=str.lower, inplace=True)  # noqa
@@ -59,18 +58,19 @@ async def xlsx_to_db(filepath: Path, filename: str) -> tuple[int, str | None]:
         return value, status
 
 
-async def csv_to_db(filepath: Path, filename: str) -> tuple[int, str | None]:
+async def csv_to_db(file: File) -> tuple[int, str | None]:
     """
     CSV file handler
-    :param filename: file id
-    :param filepath: filepath
+    :param file: File object
     :return: tuple(row,status)
     """
 
-    if (insert_file := await db.add_file(filename)) and (file_id := insert_file.get("id")):
+    if (insert_file := await db.add_file(file.saved_filename)) and (
+        file_id := insert_file.get("id")
+    ):
         value = 0
         with pd.read_csv(
-                filepath, iterator=True, chunksize=settings.CHUNK_FILE_READ, sep=";"
+            file.filepath, iterator=True, chunksize=settings.CHUNK_FILE_READ, sep=";"
         ) as csv_reader:
             for chunk in csv_reader:
                 chunk.rename(columns=str.lower, inplace=True)
@@ -103,7 +103,7 @@ async def table_phone_ls(row: DataFrame, file_id: int) -> tuple[int, str | None]
     value = df.astype({"phone_number": "str", "ls": "str"})
     if not value.empty:
         for chunk in itertools.batched(
-                value.to_dict(orient="records"), settings.CHUNK_DB_WRITE
+            value.to_dict(orient="records"), settings.CHUNK_DB_WRITE
         ):
             try:
                 await database.insert_many(
@@ -111,7 +111,8 @@ async def table_phone_ls(row: DataFrame, file_id: int) -> tuple[int, str | None]
                         {
                             "file_id": file_id,
                         }
-                    ), chunk
+                    ),
+                    chunk,
                 )
             except ConnectionRefusedError as ex:
                 error = f"DB connection issue {ex}"
@@ -131,7 +132,7 @@ async def table_ent_survey(row: DataFrame, file_id: int) -> tuple[int, str | Non
     value = df.astype({"year": "int", "value": "str"})
     if not value.empty:
         for chunk in itertools.batched(
-                value.to_dict(orient="records"), settings.CHUNK_DB_WRITE
+            value.to_dict(orient="records"), settings.CHUNK_DB_WRITE
         ):
             try:
                 await database.insert_many(
@@ -139,7 +140,8 @@ async def table_ent_survey(row: DataFrame, file_id: int) -> tuple[int, str | Non
                         {
                             "file_id": file_id,
                         }
-                    ), chunk
+                    ),
+                    chunk,
                 )
             except ConnectionRefusedError as ex:
                 error = f"DB connection issue {ex}"
@@ -159,14 +161,17 @@ async def table_geo(row: DataFrame, file_id: int) -> tuple[int, str | None]:
     value = df.astype({"year": "int", "ec_count": "int", "geo_count": "int"})
     if not value.empty:
         for chunk in itertools.batched(
-                value.to_dict(orient="records"), settings.CHUNK_DB_WRITE
+            value.to_dict(orient="records"), settings.CHUNK_DB_WRITE
         ):
             try:
-                await database.insert_many(database.table_geo.insert().values(
-                    {
-                        "file_id": file_id,
-                    }
-                ), chunk)
+                await database.insert_many(
+                    database.table_geo.insert().values(
+                        {
+                            "file_id": file_id,
+                        }
+                    ),
+                    chunk,
+                )
             except ConnectionRefusedError as ex:
                 error = f"DB connection issue {ex}"
                 logger.exception(ex)

@@ -4,11 +4,18 @@ from aiohttp import web
 
 from src.exception_handlers import (
     base_exception_handler,
+    file_id_error_exception_handler,
     file_size_error_exception_handler,
     file_structure_error_exception_handler,
-    file_type_error_exception_handler, file_id_error_exception_handler,
+    file_type_error_exception_handler,
 )
-from src.routes import handle_file_upload, index, handle_get_files
+from src.routes import (
+    handle_change_status_activate,
+    handle_change_status_deactivate,
+    handle_file_upload,
+    handle_get_files,
+    index,
+)
 
 
 async def init_app() -> web.Application:
@@ -60,6 +67,8 @@ def create_error_middleware(overrides):
 def setup_routes(app: web.Application):
     app.router.add_route("GET", "/", index)
     app.router.add_route("GET", "/status", index)
+    app.router.add_route("GET", "/{id}/activate", handle_change_status_activate)
+    app.router.add_route("GET", "/{id}/deactivate", handle_change_status_deactivate)
     app.router.add_route("GET", "/files", handle_get_files)
     app.router.add_route("POST", "/upload", handle_file_upload)
     app.router.add_static("/static", "static")

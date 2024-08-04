@@ -39,10 +39,15 @@ table_file_status = Table(
     metadata,
     Column("id", Integer, Identity(), primary_key=True),
     Column("filename", String, nullable=False),
-    Column("is_active", Boolean, server_default='t', default=True),
+    Column("is_active", Boolean, server_default="t", default=True),
     Column("row", Integer, default=0),
-    Column("created_at", DateTime, server_default=func.date_trunc('second', func.now()), nullable=False),
-    Column("updated_at", DateTime, onupdate=func.date_trunc('second', func.now())),
+    Column(
+        "created_at",
+        DateTime,
+        server_default=func.date_trunc("second", func.now()),
+        nullable=False,
+    ),
+    Column("updated_at", DateTime, onupdate=func.date_trunc("second", func.now())),
 )
 
 table_phone_ls = Table(
@@ -51,7 +56,7 @@ table_phone_ls = Table(
     Column("id", Integer, Identity(), primary_key=True),
     Column("phone_number", String, nullable=False),
     Column("ls", String, nullable=False),
-    Column("file_id", Integer, ForeignKey('uploaded_file.id'), nullable=False)
+    Column("file_id", Integer, ForeignKey("uploaded_file.id"), nullable=False),
 )
 
 table_enterprise_survey = Table(
@@ -67,7 +72,7 @@ table_enterprise_survey = Table(
     Column("variable_name", String),
     Column("variable_category", String),
     Column("value", String, nullable=True),
-    Column("file_id", Integer, ForeignKey('uploaded_file.id'), nullable=False)
+    Column("file_id", Integer, ForeignKey("uploaded_file.id"), nullable=False),
 )
 
 table_geo = Table(
@@ -79,7 +84,7 @@ table_geo = Table(
     Column("year", Integer, nullable=False),
     Column("geo_count", Integer, nullable=False),
     Column("ec_count", Integer, nullable=False),
-    Column("file_id", Integer, ForeignKey('uploaded_file.id'), nullable=False),
+    Column("file_id", Integer, ForeignKey("uploaded_file.id"), nullable=False),
 )
 
 

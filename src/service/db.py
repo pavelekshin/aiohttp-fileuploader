@@ -43,9 +43,7 @@ async def update_row(filename: str, rows: int) -> dict[str, Any]:
                 "row": rows,
             }
         )
-        .where(
-            table_file_status.c.filename == filename
-        )
+        .where(table_file_status.c.filename == filename)
         .returning(table_file_status)
     )
 
@@ -70,9 +68,8 @@ async def update_file_status(file_id: int, status: bool) -> dict[str, Any]:
             {
                 "is_active": status,
             }
-        ).where(
-            table_file_status.c.id == file_id
         )
+        .where(table_file_status.c.id == file_id)
         .returning(table_file_status)
     )
     return await fetch_one(update_query)
@@ -89,11 +86,7 @@ async def delete_file(file_id: int):
     if not file:
         raise InvalidFileIdError()
 
-    delete_query = (
-        table_file_status.delete()
-    ).where(
-        table_file_status.c.id == file_id
-    )
+    delete_query = (table_file_status.delete()).where(table_file_status.c.id == file_id)
 
     return await execute(delete_query)
 
@@ -104,7 +97,9 @@ async def get_file_by_id(file_id: int) -> dict[str, Any] | None:
 
 
 async def get_file_by_name(filename: str) -> dict[str, Any] | None:
-    select_query = table_file_status.select().where(table_file_status.c.filename == filename)
+    select_query = table_file_status.select().where(
+        table_file_status.c.filename == filename
+    )
     return await fetch_one(select_query)
 
 

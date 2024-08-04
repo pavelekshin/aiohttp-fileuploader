@@ -7,6 +7,7 @@ from aiohttp import web
 from aiohttp.web_request import Request
 
 from src.exceptions import FileError, FileSizeError
+from src.modules.mod import File
 from src.service import db, writer
 from src.settings import settings
 
@@ -41,16 +42,13 @@ async def handle_file_upload(request: Request) -> web.json_response:
     if int(reader.headers[aiohttp.hdrs.CONTENT_LENGTH]) > MAX_FILE_SIZE:
         raise FileSizeError("File to big")
     while part := await reader.next():
-        filename = part.filename
+        file = File(filename=part.filename)
         if part.headers[aiohttp.hdrs.CONTENT_TYPE] not in CONTENT_TYPE:
-            raise FileError(
-                f"Wrong filetype is uploaded .{filename.split(".")[-1].upper()}"
-            )
-        tasks.append(await writer.save_file_to_disk(part, filename))
-        print(tasks)
+            raise FileError(f"Wrong filetype is uploaded .{file.suffix.upper()}")
+        tasks.append(await writer.save_file_to_disk(part, file))
     done, _pending = await asyncio.wait(tasks, return_when="ALL_COMPLETED")
     for complete_task in done:
-        filename = complete_task.get_name().removeprefix("Task-")  # noqa: E501, substring ip address from task name
+        filename = complete_task.get_name().removeprefix("Task-")
         resp.append({"filename": filename, **complete_task.result()})
     return web.json_response(
         status=200 if all(d.get("status") == "success" for d in resp) else 500,
@@ -69,6 +67,34 @@ async def handle_get_files(request: Request) -> web.json_response:
         return web.json_response(
             status=200,
             data=files,
-            dumps=lambda item: json.dumps(item, default=serialize_datetime)
+            dumps=lambda item: json.dumps(item, default=serialize_datetime),
+        )
+    return web.json_response(404)
+
+
+async def handle_change_status_activate(request: Request) -> web.json_response:
+    """
+    Change file status
+    :param request:
+    :return:
+    """
+    if file_id := request.match_info["id"]:
+        return web.json_response(
+            status=200,
+            data=file_id,
+        )
+    return web.json_response(404)
+
+
+async def handle_change_status_deactivate(request: Request) -> web.json_response:
+    """
+    Change file status
+    :param request:
+    :return:
+    """
+    if file_id := request.match_info["id"]:
+        return web.json_response(
+            status=200,
+            data=file_id,
         )
     return web.json_response(404)
