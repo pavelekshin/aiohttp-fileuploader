@@ -46,9 +46,24 @@
         })
 
         app.addHandler("files", (data)=> {
-           app.go("files");
-        })
-    })
+            app.store.files = data;
+            app.go('files');
+            var remoteFiles = document.getElementById("remoteFiles");
+            console.log(data)
+            renderFilesResponse(data);
+        });
+    });
+
+    function httpGetFiles(url, callback) {
+        var xhr = new XMLHttpRequest();
+        xhr.responseType = 'json';
+        xhr.onreadystatechange = function() {
+            if (xhr.readyState == 4 && xhr.status == 200)
+                callback.run('files', xhr.response);
+        }
+        xhr.open("GET", url, true); // true for asynchronous
+        xhr.send();
+    };
     </script>
 </head>
 <body>
@@ -87,47 +102,26 @@
 
 
 <template id="files">
-    <div class="container">
-        <section>
-            <h1 class="center">Страница выбора приложения</h1>
-            <p class="center">Выберите одно из приложений для продолжения.</p>
-            <div class="center">
-                <div class="alert mb" onclick="redirect('/riddle')"><span class="name">Riddle App</span></div>
-                <div class="alert mb" onclick="redirect('/trivia')"><span class="name">Trivia App</span></div>
-                <div class="alert mb" onclick="redirect('/chat')"><span class="name">Chat App</span></div>
-            </div>
-        </section>
-    </div>
+    <h1 class="center">Страница управления файлами</h1>
+    <ul>
+        <strong>Файл | </strong>
+        <strong>Создан | </strong>
+        <strong>Cтрок | </strong>
+        <strong>Статус </strong>
+    </ul>
+    <ul id="remoteFiles"></ul>
 </template>
 
 <div id="button">
     <button id="go_main" class="tappable block" onclick="app.run('main')">Загрузка файлов</button>
-    <button id="go_files" class="tappable block" onclick="app.run('files')">Управление</button>
+    <button id="go_files" class="tappable block"
+            onclick="httpGetFiles(window.location.origin + '/files', app)">Управление
+    </button>
 </div>
 
 <script>
-
     const button_main = document.getElementById('go_main');
     button_main.addEventListener('click', function(){ loadUploader();}, false);
-
-
-<!--    const content = document.getElementById('content');-->
-<!--    const config = {attributes: false, childList: true, subtree: true };-->
-<!--    var observer = new MutationObserver(function(mutations) {-->
-<!--      mutations.forEach(function(mutation) {-->
-<!--        if (mutation.type === "childList" && mutation.target.id === "app") {-->
-<!--            {-->
-<!--               console.log(`The ${mutation.target.id} was modified.`);-->
-<!--               loadUploader();-->
-<!--            }-->
-<!--        }-->
-<!--        else if (mutation.type === "attributes") {-->
-<!--            console.log(`The ${mutation.attributeName} attribute was modified.`);-->
-<!--        }-->
-<!--      });-->
-<!--    });-->
-<!--    observer.observe(content, config);-->
-
 </script>
 </body>
 </html>

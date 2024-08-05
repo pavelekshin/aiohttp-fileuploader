@@ -13,27 +13,6 @@ dropArea.addEventListener("drop", handleDrop);
 
 initDropAreaHighlightOnDrag();
 
-function load_page(event, pathname){
-    event.preventDefault();
-    const url = window.location.origin + pathname
-    let con = document.getElementById("content");
-    let xhr = new XMLHttpRequest();
-
-    xhr.onreadystatechange = function(e) {
-        if(xhr.readyState == 4 && xhr.status == 200) {
-        var parser = new DOMParser();
-        var doc = parser.parseFromString(xhr.responseText, "text/html");
-        var elem = doc.getElementById("content");
-        con.replaceWith(elem);
-        }
-     }
-
-
-    xhr.open("GET", url, true);
-        xhr.setRequestHeader('Content-type', 'text/html');
-    xhr.send();
- }
-
 function handleSubmit(event) {
   event.preventDefault();
   showPendingState();
@@ -90,20 +69,19 @@ function uploadFiles(files) {
   const method = "POST";
 
   const xhr = new XMLHttpRequest();
+  xhr.responseType = 'json';
 
   xhr.upload.addEventListener("progress", (event) => {
     var loaded = event.loaded;
     var total = event.total;
     updateStatusMessage(`⏳ Загружено ${formatBytes(loaded)} из ${formatBytes(total)}`);
-//    updateStatusMessage(`⏳ Uploaded ${event.loaded} bytes of ${event.total}`);
     updateProgressBar(loaded/total);
   });
 
   xhr.addEventListener("loadend", () => {
     if (xhr.status === 200) {
       updateStatusMessage("✅ Файл успешно загружен");
-      renderJSONResponse(files, xhr.response);
-//      renderFilesMetadata(fileList);
+      renderResponse(xhr.response);
     } else {
       updateStatusMessage("❌ Возникла ошибка: " + xhr.responseText);
     }
@@ -121,36 +99,12 @@ function uploadFiles(files) {
   xhr.send(data);
 }
 
-function renderFilesMetadata(fileList) {
-  const fileTypes = ["application/vnd.ms-excel", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"];
-  fileNum.textContent = fileList.length;
+function renderResponse(response) {
+  const json = response;
+  fileNum.textContent = json.length;
   fileListMetadata.textContent = "";
 
-  for (const file of fileList) {
-    const name = file.name;
-    let type = file.type;
-    const size = formatBytes(file.size);
-
-    if (fileTypes.includes(type)) type = "Excel";
-
-    fileListMetadata.insertAdjacentHTML(
-      "beforeend",
-      `
-        <li>
-          <p><strong>Файл:</strong> ${name}</p>
-          <p><strong>Тип:</strong> ${type}</p>
-          <p><strong>Размер:</strong> ${size}</p>
-        </li>`
-    );
-  }
-}
-
-function renderJSONResponse(fileList, response) {
-  const json_obj = JSON.parse(response);
-  fileNum.textContent = fileList.length;
-  fileListMetadata.textContent = "";
-
-  for (const file of json_obj) {
+  for (const file of json) {
     const name = file.filename;
     let rows = file.rows;
 
@@ -161,6 +115,33 @@ function renderJSONResponse(fileList, response) {
           <p><strong>Файл:</strong> ${name}</p>
           <p><strong>Строк:</strong> ${rows}</p>
         </li>`
+    );
+  }
+}
+
+function renderFilesResponse(response) {
+  const json = response;
+  remoteFiles.textContent = "";
+
+  for (const file of json) {
+    const name = file.filename;
+    const created_at = file.created_at;
+    const status = file.is_active;
+    const rows = file.row;
+
+    remoteFiles.insertAdjacentHTML(
+      "beforeend",
+      `
+     <div class="alert mb" onclick="app.run()">
+        <span class="name">
+            <li>
+                <p>${name}</p>
+                <p>${created_at}</p>
+                <p>${rows}</p>
+                <p>${status}</p>
+            </li>
+        </span>
+      </div>`
     );
   }
 }

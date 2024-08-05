@@ -27,7 +27,6 @@ async def save_file_to_disk(
                 break
             size += len(chunk)
             await af.write(chunk)
-    print(file)
     task = asyncio.create_task(
         parser.file_to_db(file), name=f"Task-{file.saved_filename}"
     )

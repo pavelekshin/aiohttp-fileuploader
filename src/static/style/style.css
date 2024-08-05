@@ -14,7 +14,7 @@ body {
 
 ul {
   list-style-type: none;
-  width: 500px;
+  width: 800px;
   margin: 0 auto;
   padding: 0 20px;
 }
@@ -56,7 +56,7 @@ progress {
   background: #fff;
   padding: 20px 30px;
   border-radius: 15px;
-  width: 620px;
+  width: 820px;
   margin: 0 auto;
   text-align: center;
 }
@@ -65,7 +65,7 @@ progress {
   background: #fff;
   padding: 20px 30px;
   border-radius: 15px;
-  width: 620px;
+  width: 820px;
   margin: 0 auto;
   text-align: center;
   display: flex;
@@ -76,7 +76,7 @@ progress {
   border: 2px dashed transparent;
   background: #fff;
   border-radius: 15px;
-  width: 500px;
+  width: 600px;
   padding: 30px 20px 30px;
 
   background: radial-gradient(
@@ -98,6 +98,15 @@ progress {
     color: #fff;
     padding: 1em;
 }
+
+.alert {
+    background-color: #F3F3F3;
+    padding: .75em .5em;
+    border-radius: 8px;
+}
+
+.mb { margin-bottom: 2rem;}
+
 
 .block {
     display: block;

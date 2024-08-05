@@ -2,15 +2,22 @@ from datetime import datetime
 from pathlib import Path
 
 from src.data.data_folder import get_data_path
+from src.exceptions import FileError
 
 
 class File:
     def __init__(self, filename) -> None:
         self._filename: str = filename
-        name, *_, suffix = self._filename.split(".")
+        try:
+            name, *_, suffix = self._filename.split(".")
+        except ValueError as err:
+            raise FileError
         self._name: str = name
         self._suffix: str = suffix
         self._saved_filename: str | None = None
+
+    def _generate_new_filename(self):
+        return f"{self._name}_{datetime.now().strftime("%Y_%m_%d_%H%M%S")}.{self._suffix}"
 
     @property
     def suffix(self) -> str:
@@ -18,12 +25,14 @@ class File:
 
     @property
     def saved_filename(self) -> str:
+        if not self._saved_filename:
+            self._saved_filename = self._generate_new_filename()
         return self._saved_filename
 
     @property
     def filepath(self) -> Path:
         if not self._saved_filename:
-            self._saved_filename = f"{self._name}_{datetime.now().strftime("%Y_%m_%d_%H%M%S")}.{self._suffix}"
+            self._saved_filename = self._generate_new_filename()
         return get_data_path(self._saved_filename)
 
     def __repr__(self) -> str:

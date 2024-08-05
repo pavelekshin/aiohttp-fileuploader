@@ -65,13 +65,17 @@ def create_error_middleware(overrides):
 
 
 def setup_routes(app: web.Application):
-    app.router.add_route("GET", "/", index)
-    app.router.add_route("GET", "/status", index)
-    app.router.add_route("GET", "/{id}/activate", handle_change_status_activate)
-    app.router.add_route("GET", "/{id}/deactivate", handle_change_status_deactivate)
-    app.router.add_route("GET", "/files", handle_get_files)
-    app.router.add_route("POST", "/upload", handle_file_upload)
-    app.router.add_static("/static", "static")
+    app.router.add_routes(
+        [
+            web.get("/", index),
+            web.get("/status", index),
+            web.get("/{id}/activate", handle_change_status_activate),
+            web.get("/{id}/deactivate", handle_change_status_deactivate),
+            web.get("/files", handle_get_files),
+            web.post("/upload", handle_file_upload),
+            web.static("/static", "static"),
+        ]
+    )
 
 
 def setup_middlewares(app):
