@@ -69,7 +69,6 @@ def setup_routes(app: web.Application):
     app.router.add_routes(
         [
             web.get("/", index),
-            web.get("/status", index),
             web.get("/files", handle_get_files),
             web.post("/upload", handle_file_upload),
             web.post("/{id}/activate", handle_change_status_activate),
