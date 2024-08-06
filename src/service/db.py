@@ -104,5 +104,7 @@ async def get_file_by_name(filename: str) -> dict[str, Any] | None:
 
 
 async def get_all_files() -> list[dict[str, Any]] | None:
-    select_query = table_file_status.select().order_by(table_file_status.c.created_at.desc())
+    select_query = table_file_status.select().order_by(
+        table_file_status.c.created_at.desc()
+    )
     return await fetch_all(select_query)

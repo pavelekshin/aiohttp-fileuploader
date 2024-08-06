@@ -12,9 +12,10 @@ from src.exception_handlers import (
 from src.routes import (
     handle_change_status_activate,
     handle_change_status_deactivate,
+    handle_delete_files,
     handle_file_upload,
     handle_get_files,
-    index, handle_delete_files,
+    index,
 )
 
 

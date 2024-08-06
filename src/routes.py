@@ -9,7 +9,7 @@ from aiohttp.web_request import Request
 from src.exceptions import FileError, FileSizeError
 from src.modules.mod import File
 from src.service import db, writer
-from src.service.db import update_file_status, delete_file
+from src.service.db import delete_file, update_file_status
 from src.settings import settings
 
 CONTENT_TYPE = settings.CONTENT_TYPE

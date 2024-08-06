@@ -10,14 +10,16 @@ class File:
         self._filename: str = filename
         try:
             name, *_, suffix = self._filename.split(".")
-        except ValueError as err:
-            raise FileError
+        except ValueError as ex:
+            raise FileError from ex
         self._name: str = name
         self._suffix: str = suffix
         self._saved_filename: str | None = None
 
     def _generate_new_filename(self):
-        return f"{self._name}_{datetime.now().strftime("%Y_%m_%d_%H%M%S")}.{self._suffix}"
+        return (
+            f"{self._name}_{datetime.now().strftime("%Y_%m_%d_%H%M%S")}.{self._suffix}"
+        )
 
     @property
     def suffix(self) -> str:
@@ -39,5 +41,7 @@ class File:
         return f"{self.__class__.__qualname__}(filename={self._filename})"
 
     def __str__(self) -> str:
-        return (f"{self.__class__.__qualname__}(filename={self._filename}, name={self._name}, suffix={self._suffix},"
-                f" filepath={self.filepath}, saved_filename={self._saved_filename})")
+        return (
+            f"{self.__class__.__qualname__}(filename={self._filename}, name={self._name}, suffix={self._suffix},"
+            f" filepath={self.filepath}, saved_filename={self._saved_filename})"
+        )
