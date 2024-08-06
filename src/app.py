@@ -14,7 +14,7 @@ from src.routes import (
     handle_change_status_deactivate,
     handle_file_upload,
     handle_get_files,
-    index,
+    index, handle_delete_files,
 )
 
 
@@ -69,10 +69,11 @@ def setup_routes(app: web.Application):
         [
             web.get("/", index),
             web.get("/status", index),
-            web.get("/{id}/activate", handle_change_status_activate),
-            web.get("/{id}/deactivate", handle_change_status_deactivate),
             web.get("/files", handle_get_files),
             web.post("/upload", handle_file_upload),
+            web.post("/{id}/activate", handle_change_status_activate),
+            web.post("/{id}/deactivate", handle_change_status_deactivate),
+            web.post("/{id}/delete", handle_delete_files),
             web.static("/static", "static"),
         ]
     )

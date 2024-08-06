@@ -5,65 +5,47 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <link rel="stylesheet" type="text/css" href="/static/style/style.css"/>
-    <script src="https://cdn.jsdelivr.net/npm/handlebars@latest/dist/handlebars.js"></script>
     <script src="/static/js/handler.js"></script>
     <script>
-        var store = {
-          files: {},
-        };
-
-        app_pages = {
-            main:  {},
-            files: {},
-        }
 
         window.addEventListener("load", (event) => {
-                app.run('main');
-                loadUploader();
+            app.run('main');
         });
 
-        function loadUploader() {
-            var script = document.createElement('script');
-            script.src = '/static/js/uploader.js';
-            document.body.appendChild(script);
-        }
-
-        document.addEventListener('DOMContentLoaded', function () {
-
-        app = new handler({
-          store: store,
-          container: "#app",
-          pages: app_pages,
-          url: window.location.origin + window.location.pathname
-        });
-
-        Handlebars.registerHelper("incremented", function (index) {
-            return index + 1;
+        document.addEventListener('DOMContentLoaded', function (event) {
+            app = new handler({
+            store: {},
+            container: "#app",
+            pages: {main: {}, files: {}},
+            url: window.location.origin + window.location.pathname
         });
 
         app.addHandler("main", (data)=> {
             app.go("main");
+            var script = document.createElement('script');
+            script.src = '/static/js/uploader.js';
+            document.body.appendChild(script);
         })
 
         app.addHandler("files", (data)=> {
-            app.store.files = data;
             app.go('files');
             var remoteFiles = document.getElementById("remoteFiles");
-            console.log(data)
             renderFilesResponse(data);
         });
     });
 
-    function httpGetFiles(url, callback) {
+    function httpClient(path, callback, method) {
+        const url = window.location.origin + path;
         var xhr = new XMLHttpRequest();
         xhr.responseType = 'json';
         xhr.onreadystatechange = function() {
-            if (xhr.readyState == 4 && xhr.status == 200)
+            if (xhr.readyState == 4)
                 callback.run('files', xhr.response);
         }
-        xhr.open("GET", url, true); // true for asynchronous
+        xhr.open(method, url, true); // true for asynchronous
         xhr.send();
     };
+
     </script>
 </head>
 <body>
@@ -100,28 +82,15 @@
     <ul id="fileListMetadata"></ul>
 </template>
 
-
 <template id="files">
     <h1 class="center">Страница управления файлами</h1>
-    <ul>
-        <strong>Файл | </strong>
-        <strong>Создан | </strong>
-        <strong>Cтрок | </strong>
-        <strong>Статус </strong>
-    </ul>
+    <strong>Файл | Создан | Cтрок | Статус &#128998; / &#11036; </strong>
     <ul id="remoteFiles"></ul>
 </template>
 
 <div id="button">
-    <button id="go_main" class="tappable block" onclick="app.run('main')">Загрузка файлов</button>
-    <button id="go_files" class="tappable block"
-            onclick="httpGetFiles(window.location.origin + '/files', app)">Управление
-    </button>
+    <button class="tappable block" onclick="app.run('main')">Загрузка файлов</button>
+    <button class="tappable block" onclick="httpClient('/files', app, 'GET')">Управление</button>
 </div>
-
-<script>
-    const button_main = document.getElementById('go_main');
-    button_main.addEventListener('click', function(){ loadUploader();}, false);
-</script>
 </body>
 </html>

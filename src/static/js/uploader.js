@@ -2,8 +2,6 @@ var form = document.querySelector("form");
 var fileInput = document.querySelector("input");
 var submitButton = document.querySelector("button");
 var statusMessage = document.getElementById("statusMessage");
-var fileListMetadata = document.getElementById("fileListMetadata");
-var fileNum = document.getElementById("fileNum");
 var progressBar = document.querySelector("progress");
 var dropArea = document.getElementById("dropArea");
 
@@ -14,37 +12,37 @@ dropArea.addEventListener("drop", handleDrop);
 initDropAreaHighlightOnDrag();
 
 function handleSubmit(event) {
-  event.preventDefault();
-  showPendingState();
-  uploadFiles(fileInput.files);
+    event.preventDefault();
+    showPendingState();
+    uploadFiles(fileInput.files);
 }
 
 function handleDrop(event) {
-  const fileList = event.dataTransfer.files;
-  resetFormState();
+    const fileList = event.dataTransfer.files;
+    resetFormState();
 
-  try {
-    assertFilesValid(fileList);
-  } catch (err) {
-    updateStatusMessage(err.message);
-    return;
-  }
+    try {
+        assertFilesValid(fileList);
+    } catch (err) {
+        updateStatusMessage(err.message);
+        return;
+    }
 
-  showPendingState();
-  uploadFiles(fileList);
+    showPendingState();
+    uploadFiles(fileList);
 }
 
 function handleInputChange(event) {
-  resetFormState();
+    resetFormState();
 
-  try {
-    assertFilesValid(event.target.files);
-  } catch (err) {
-    updateStatusMessage(err.message);
-    return;
-  }
+    try {
+        assertFilesValid(event.target.files);
+    } catch (err) {
+        updateStatusMessage(err.message);
+        return;
+    }
 
-  submitButton.disabled = false;
+    submitButton.disabled = false;
 }
 
 function formatBytes(bytes) {
@@ -65,165 +63,179 @@ function formatBytes(bytes) {
 }
 
 function uploadFiles(files) {
-  const url = window.location.origin + window.location.pathname + 'upload'
-  const method = "POST";
+    const url = window.location.origin + window.location.pathname + 'upload'
+    const method = "POST";
 
-  const xhr = new XMLHttpRequest();
-  xhr.responseType = 'json';
+    const xhr = new XMLHttpRequest();
+    xhr.responseType = 'json';
 
-  xhr.upload.addEventListener("progress", (event) => {
-    var loaded = event.loaded;
-    var total = event.total;
-    updateStatusMessage(`⏳ Загружено ${formatBytes(loaded)} из ${formatBytes(total)}`);
-    updateProgressBar(loaded/total);
-  });
+    xhr.upload.addEventListener("progress", (event) => {
+        var loaded = event.loaded;
+        var total = event.total;
+        updateStatusMessage(`⏳ Загружено ${formatBytes(loaded)} из ${formatBytes(total)}`);
+        updateProgressBar(loaded / total);
+    });
 
-  xhr.addEventListener("loadend", () => {
-    if (xhr.status === 200) {
-      updateStatusMessage("✅ Файл успешно загружен");
-      renderResponse(xhr.response);
-    } else {
-      updateStatusMessage("❌ Возникла ошибка: " + xhr.responseText);
+    xhr.addEventListener("loadend", () => {
+        if (xhr.status === 200) {
+            updateStatusMessage("✅ Файл успешно загружен");
+            renderResponse(xhr.response);
+        } else {
+            updateStatusMessage("❌ Возникла ошибка: " + xhr.responseText);
+        }
+
+        updateProgressBar(0);
+    });
+
+    const data = new FormData();
+
+    for (const file of files) {
+        data.append("file", file);
     }
 
-    updateProgressBar(0);
-  });
-
-  const data = new FormData();
-
-  for (const file of files) {
-    data.append("file", file);
-  }
-
-  xhr.open(method, url);
-  xhr.send(data);
+    xhr.open(method, url);
+    xhr.send(data);
 }
 
 function renderResponse(response) {
-  const json = response;
-  fileNum.textContent = json.length;
-  fileListMetadata.textContent = "";
+    const json = response;
+    fileNum.textContent = json.length;
+    fileListMetadata.textContent = "";
 
-  for (const file of json) {
-    const name = file.filename;
-    let rows = file.rows;
+    for (const file of json) {
+        const name = file.filename;
+        let rows = file.rows;
 
-    fileListMetadata.insertAdjacentHTML(
-      "beforeend",
-      `
+        var htmlData =`
         <li>
-          <p><strong>Файл:</strong> ${name}</p>
-          <p><strong>Строк:</strong> ${rows}</p>
+            <p><strong>Файл:</strong> ${name}</p>
+            <p><strong>Строк:</strong> ${rows}</p>
         </li>`
-    );
-  }
+        fileListMetadata.insertAdjacentHTML("beforeend", htmlData);
+    }
 }
 
 function renderFilesResponse(response) {
-  const json = response;
-  remoteFiles.textContent = "";
+    const json = response;
+    remoteFiles.textContent = "";
 
-  for (const file of json) {
-    const name = file.filename;
-    const created_at = file.created_at;
-    const status = file.is_active;
-    const rows = file.row;
+    if (json) {
+        for (const file of json) {
+            const id = file.id;
+            const name = file.filename;
+            const created_at = file.created_at;
+            const status = file.is_active;
+            const rows = file.row;
 
-    remoteFiles.insertAdjacentHTML(
-      "beforeend",
-      `
-     <div class="alert mb" onclick="app.run()">
-        <span class="name">
-            <li>
-                <p>${name}</p>
-                <p>${created_at}</p>
-                <p>${rows}</p>
-                <p>${status}</p>
-            </li>
-        </span>
-      </div>`
-    );
-  }
+            if (status === true) {
+                var cls = "active_option"
+                var action = `/${id}/deactivate`
+            } else {
+                var cls = ""
+                var action = `/${id}/activate`
+            }
+
+         var htmlData = `
+         <div class="files">
+         <div class="alert mb ${cls}" onclick="httpClient('${action}', app, 'POST')">
+                <span class="name">
+                    <li>
+                        <p>${name}</p>
+                        <p>${created_at}</p>
+                        <p>${rows}</p>
+                    </li>
+                </span>
+              </div>
+              <div class="alert mb ${cls}" onclick="httpClient('/${id}/delete', app, 'POST')">
+                <span class="name">❌</span>
+          </div>
+         </div>`
+         remoteFiles.insertAdjacentHTML("beforeend", htmlData);
+    }
+ }
 }
 
 function assertFilesValid(fileList) {
-  const allowedTypes = ["text/csv", "application/vnd.ms-excel", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"];
-  const sizeLimit = 1024 * 1024 * 150; // 150 megabyte
+    const allowedTypes = ["text/csv", "application/vnd.ms-excel", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"];
+    const sizeLimit = 1024 * 1024 * 150; // 150 megabyte
 
-  for (const file of fileList) {
-    const { name: fileName, size: fileSize } = file;
+    for (const file of fileList) {
+        const {
+            name: fileName,
+            size: fileSize
+        } = file;
 
-    if (!allowedTypes.includes(file.type)) {
-      console.log(file.type)
-      throw new Error(
-        `❌ Файл "${fileName}" не может быть загружен. Поддерживаемый формат файлов: CSV, XLS, XLSX`
-      );
+        if (!allowedTypes.includes(file.type)) {
+            console.log(file.type)
+            throw new Error(
+                `❌ Файл "${fileName}" не может быть загружен. Поддерживаемый формат файлов: CSV, XLS, XLSX`
+            );
+        }
+
+        if (fileSize > sizeLimit) {
+            throw new Error(
+                `❌ Файл "${fileName}" не может быть загружен. Максимальный размер файлов - 150 MB`
+            );
+        }
     }
-
-    if (fileSize > sizeLimit) {
-      throw new Error(
-        `❌ Файл "${fileName}" не может быть загружен. Максимальный размер файлов - 150 MB`
-      );
-    }
-  }
 }
 
 function updateStatusMessage(text) {
-  statusMessage.textContent = text;
+    statusMessage.textContent = text;
 }
 
 function updateProgressBar(value) {
-  const percent = value * 100;
-  progressBar.value = Math.round(percent);
+    const percent = value * 100;
+    progressBar.value = Math.round(percent);
 }
 
 function showPendingState() {
-  submitButton.disabled = true;
-  updateStatusMessage("⏳ Pending...");
+    submitButton.disabled = true;
+    updateStatusMessage("⏳ Pending...");
 }
 
 function resetFormState() {
-  fileListMetadata.textContent = "";
-  fileNum.textContent = "0";
+    fileListMetadata.textContent = "";
+    fileNum.textContent = "0";
 
-  submitButton.disabled = true;
-  updateStatusMessage("🤷‍♂ Пока нет загруженных файлов");
+    submitButton.disabled = true;
+    updateStatusMessage("🤷‍♂ Пока нет загруженных файлов");
 }
 
 function initDropAreaHighlightOnDrag() {
-  let dragEventCounter = 0;
+    let dragEventCounter = 0;
 
-  dropArea.addEventListener("dragenter", (event) => {
-    event.preventDefault();
+    dropArea.addEventListener("dragenter", (event) => {
+        event.preventDefault();
 
-    if (dragEventCounter === 0) {
-      dropArea.classList.add("highlight");
-    }
-    dragEventCounter += 1;
-  });
+        if (dragEventCounter === 0) {
+            dropArea.classList.add("highlight");
+        }
+        dragEventCounter += 1;
+    });
 
-  dropArea.addEventListener("dragover", (event) => {
-    event.preventDefault();
+    dropArea.addEventListener("dragover", (event) => {
+        event.preventDefault();
 
-    // in case of non triggered dragenter!
-    if (dragEventCounter === 0) {
-      dragEventCounter = 1;
-    }
-  });
+        // in case of non triggered dragenter!
+        if (dragEventCounter === 0) {
+            dragEventCounter = 1;
+        }
+    });
 
-  dropArea.addEventListener("dragleave", (event) => {
-    event.preventDefault();
+    dropArea.addEventListener("dragleave", (event) => {
+        event.preventDefault();
 
-    dragEventCounter -= 1;
-    if (dragEventCounter <= 0) {
-      dragEventCounter = 0;
-      dropArea.classList.remove("highlight");
-    }
-  });
+        dragEventCounter -= 1;
+        if (dragEventCounter <= 0) {
+            dragEventCounter = 0;
+            dropArea.classList.remove("highlight");
+        }
+    });
 
-  dropArea.addEventListener("drop", (event) => {
-    event.preventDefault();
-    dragEventCounter = 0;
-    dropArea.classList.remove("highlight");
-  });
+    dropArea.addEventListener("drop", (event) => {
+        event.preventDefault();
+        dragEventCounter = 0;
+        dropArea.classList.remove("highlight");
+    });
 }

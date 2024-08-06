@@ -1,77 +1,72 @@
 function handler({store, container, pages, url}) {
+    this.store = store
+    this.container = container // dom app locator
+    this.pages = pages // all app pages
+    this.handlers = {} // all handlers
+    this.url = url
+    this.render = function(template, container = null) {
 
-  if (!window.Handlebars) { throw new Error('Handlebars should be loaded to document'); }
+        data = this.store
+        if (!container) {
+            container = this.container
+        }
 
-  this.store = store
-  this.container = container // dom app locator
-  this.pages = pages // all app pages
-  this.handlers = {} // all handlers
-  this.url = url
-  this.render = function(template, container=null) {
+        console.log(`Rendering template ${template} to ${container}`)
 
-          data = this.store
-          if (!container) {container = this.container}
-
-          console.log(`Rendering template ${template}  to ${container}`)
-
-          try {
+        try {
             const templateElement = document.querySelector(template);
 
             if (!templateElement) {
-              throw new Error(`Template element ${template} not found`);
+                throw new Error(`Template element ${template} not found`);
             }
-
 
             const outputElement = document.querySelector(container);
 
             if (!outputElement) {
-              throw new Error('No element to put page into ');
+                throw new Error('No element to put page into ');
             }
 
-            var templateText = templateElement.innerHTML;
-            var template = Handlebars.compile(templateText);
-            var renderedHTML = template(data);
+            var html = templateElement.innerHTML;
+            outputElement.innerHTML = html;
 
-            outputElement.innerHTML = renderedHTML;
-
-          } catch (error) {
+        } catch (error) {
             console.error(error);
-          }
+        }
     }
 
 
-  this.go = function (state) {
+    this.go = function(state) {
 
-    if (this.pages[state]) {
-      this.render("#"+state, this.container, this.store);
-    } else {
-      console.error(`State ${state} not found`);
+        if (this.pages[state]) {
+            this.render("#" + state, this.container, this.store);
+        } else {
+            console.error(`State ${state} not found`);
+        }
+        this.state = state
+    };
+
+
+    this.payload = []
+    this.addPayload = function(key) {
+        if (!this.store.hasOwnProperty(key)) {
+            throw new Error(`Payload error: ${key} not in store`);
+        } else {
+            this.payload.push(key)
+        }
     }
-    this.state = state
-  };
 
+    this.addHandler = function(name, func) {
+        this.handlers[name] = func
+        console.log(`Handler ${name} added`)
+    }
 
-  this.payload = []
-  this.addPayload = function(key){
-     if (!this.store.hasOwnProperty(key)) {
-        throw new Error(`Payload error: ${key} not in store`);
-     } else {
-        this.payload.push(key)
-     }
-  }
+    this.run = function(name, data) {
 
-   this.addHandler = function(name, func) {
-       this.handlers[name] = func
-       console.log(`Handler ${name} added`)
-   }
+        if (typeof this.handlers[name] !== 'function') {
+            throw new Error(`Handler with name ${name} doesn't exist.`);
+        }
 
-   this.run = function(name, data) {
-
-       if (typeof this.handlers[name] !== 'function') {
-          throw new Error(`Handler with name ${name} doesn't exist.`);
-      }
-
-       console.log(`Handler ${name} running`)
-       func = this.handlers[name](data)
-   }
+        console.log(`Handler ${name} running`)
+        func = this.handlers[name](data)
+    }
 }

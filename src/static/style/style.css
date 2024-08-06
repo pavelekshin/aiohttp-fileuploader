@@ -55,7 +55,7 @@ progress {
 #app {
   background: #fff;
   padding: 20px 30px;
-  border-radius: 15px;
+  border-radius: 15px 15px 0px 0px;
   width: 820px;
   margin: 0 auto;
   text-align: center;
@@ -64,7 +64,7 @@ progress {
 #button {
   background: #fff;
   padding: 20px 30px;
-  border-radius: 15px;
+  border-radius: 0px 0px 15px 15px;
   width: 820px;
   margin: 0 auto;
   text-align: center;
@@ -107,6 +107,9 @@ progress {
 
 .mb { margin-bottom: 2rem;}
 
+.files {
+    display: block ruby;
+}
 
 .block {
     display: block;
@@ -152,4 +155,20 @@ button:hover,
 input[type="file"]::file-selector-button:hover {
   background: #313131;
   transition: all 0.2s ease;
+}
+
+.option {
+   cursor: pointer;
+   transition-property: background-color;
+   transition-duration: 400ms;
+}
+
+.active_option {
+   background-color: #2F80ED !important;
+   color: white !important;
+}
+
+.selected_option {
+   background-color: #6FCF97 !important;
+   color: white !important;
 }
