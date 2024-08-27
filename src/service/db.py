@@ -4,7 +4,7 @@ from src.database import execute, fetch_all, fetch_one, table_file_status
 from src.exceptions import InvalidFileIdError
 
 
-async def add_file(filename: str) -> dict[str, Any]:
+async def add_file(filename: str) -> dict[str, Any] | None:
     """
     Add file in db
     :param filename:
@@ -24,7 +24,7 @@ async def add_file(filename: str) -> dict[str, Any]:
     return await fetch_one(inset_query)
 
 
-async def update_row(filename: str, rows: int) -> dict[str, Any]:
+async def update_row(filename: str, rows: int) -> dict[str, Any] | None:
     """
     Update row count
     :param filename:
@@ -50,7 +50,7 @@ async def update_row(filename: str, rows: int) -> dict[str, Any]:
     return await fetch_one(update_query)
 
 
-async def update_file_status(file_id: int, status: bool) -> dict[str, Any]:
+async def update_file_status(file_id: int, status: bool) -> dict[str, Any] | None:
     """
     Update file status
     :param file_id:
@@ -75,7 +75,7 @@ async def update_file_status(file_id: int, status: bool) -> dict[str, Any]:
     return await fetch_one(update_query)
 
 
-async def delete_file(file_id: int):
+async def delete_file(file_id: int) -> None:
     """
     Delete file
     :param file_id:

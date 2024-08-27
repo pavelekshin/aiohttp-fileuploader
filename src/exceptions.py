@@ -6,7 +6,7 @@ class DetailedError(Exception):
     error_code = ErrorCode.INTERNAL_SERVER_ERROR
     error_detail = None
 
-    def __init__(self, detail=None):
+    def __init__(self, detail: str | None = None) -> None:
         self.error_detail = detail
 
 

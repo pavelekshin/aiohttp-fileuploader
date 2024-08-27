@@ -9,8 +9,8 @@ from src.exceptions import (
 
 
 async def file_type_error_exception_handler(
-    request, exception: FileError
-) -> web.json_response:
+    request: web.Request, exception: FileError
+) -> web.Response:
     """
     Returns a Response for FileError exception.
     Used for error middleware.
@@ -29,7 +29,7 @@ async def file_type_error_exception_handler(
 
 
 async def file_size_error_exception_handler(
-    request, exception: FileSizeError
+    request: web.Request, exception: FileSizeError
 ) -> web.Response:
     """
     Returns a Response for FileSizeError exception.
@@ -49,8 +49,8 @@ async def file_size_error_exception_handler(
 
 
 async def file_structure_error_exception_handler(
-    request, exception: FileStructureError
-) -> web.json_response:
+    request: web.Request, exception: FileStructureError
+) -> web.Response:
     """
     Returns a Response for FileStructureError exception.
     Used for error middleware.
@@ -69,8 +69,8 @@ async def file_structure_error_exception_handler(
 
 
 async def file_id_error_exception_handler(
-    request, exception: InvalidFileIdError
-) -> web.json_response:
+    request: web.Request, exception: InvalidFileIdError
+) -> web.Response:
     """
     Returns a Response for FileStructureError exception.
     Used for error middleware.
@@ -90,7 +90,7 @@ async def file_id_error_exception_handler(
 
 async def base_exception_handler(
     status_code: int, exception: Exception
-) -> web.json_response:
+) -> web.Response:
     """
     Returns a Response for any unhandled exception.
     Used for error middleware.

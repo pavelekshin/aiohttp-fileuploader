@@ -56,6 +56,7 @@ async def xlsx_to_db(file: File) -> tuple[int, str | None]:
                         await delete_file(file_id)
                         raise FileStructureError(f"Unsupported file structure {header}")
         return value, status
+    return 0, "file error"
 
 
 async def csv_to_db(file: File) -> tuple[int, str | None]:
@@ -89,6 +90,7 @@ async def csv_to_db(file: File) -> tuple[int, str | None]:
                     break
                 value += row
         return value, status
+    return 0, "file error"
 
 
 async def table_phone_ls(row: DataFrame, file_id: int) -> tuple[int, str | None]:

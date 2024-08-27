@@ -6,7 +6,9 @@ from src.exceptions import FileError
 
 
 class File:
-    def __init__(self, filename) -> None:
+    def __init__(self, filename: str | None) -> None:
+        if not filename:
+            raise ValueError("Filename not provided!")
         self._filename: str = filename
         try:
             name, *_, suffix = self._filename.split(".")
@@ -16,7 +18,7 @@ class File:
         self._suffix: str = suffix
         self._saved_filename: str | None = None
 
-    def _generate_new_filename(self):
+    def _generate_new_filename(self) -> str:
         return (
             f"{self._name}_{datetime.now().strftime("%Y_%m_%d_%H%M%S")}.{self._suffix}"
         )

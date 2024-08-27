@@ -1,6 +1,9 @@
 from asyncio.log import logger
+from typing import Any
 
 from aiohttp import web
+from aiohttp.typedefs import Handler, Middleware
+from aiohttp.web_response import StreamResponse
 
 from src.exception_handlers import (
     base_exception_handler,
@@ -26,7 +29,6 @@ async def init_app() -> web.Application:
     """
     # Create webapp
     app = web.Application()
-    app.cleanup_ctx.append(context)
     # init webapp routes
     setup_routes(app)
     # init middlewares handlers
@@ -34,11 +36,7 @@ async def init_app() -> web.Application:
     return app
 
 
-async def context(app):
-    yield
-
-
-def create_error_middleware(overrides):
+def create_error_middleware(overrides: dict[str | int, Any]) -> Middleware:
     """
     Custom middleware error handler
     :param overrides: dict with exception handlers
@@ -46,7 +44,9 @@ def create_error_middleware(overrides):
     """
 
     @web.middleware
-    async def error_middleware(request, handler):
+    async def error_middleware(
+        request: web.Request, handler: Handler
+    ) -> StreamResponse:
         try:
             return await handler(request)
         except web.HTTPException as ex:
@@ -65,7 +65,7 @@ def create_error_middleware(overrides):
     return error_middleware
 
 
-def setup_routes(app: web.Application):
+def setup_routes(app: web.Application) -> None:
     app.router.add_routes(
         [
             web.get("/", index),
@@ -79,7 +79,7 @@ def setup_routes(app: web.Application):
     )
 
 
-def setup_middlewares(app):
+def setup_middlewares(app: web.Application) -> None:
     error_middleware = create_error_middleware(
         {
             "FileError": file_type_error_exception_handler,

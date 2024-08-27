@@ -8,13 +8,13 @@ class SqlAlchemyConfig:
 
     __test__ = False
 
-    DATABASE_URL: str = None
+    DATABASE_URL: str = None  # type: ignore
     ECHO: bool = False
     ENGINE_OPTIONS: dict[str, Any] = {}
 
     @property
     def sa_database_uri(self) -> str:
-        if self.__class__ is PostgreSQL or SQLite:
+        if self.__class__ is PostgreSQL or self.__class__ is SQLite:
             return self.DATABASE_URL
         else:
             raise NotImplementedError("This DB not implemented!")
@@ -44,7 +44,7 @@ class PostgreSQL(SqlAlchemyConfig):
         "pool_pre_ping": True,
     }
 
-    def __init__(self, url, echo=None):
+    def __init__(self, url: str, echo: bool | None = None) -> None:
         self.DATABASE_URL = url
         if echo:
             self.ECHO = echo

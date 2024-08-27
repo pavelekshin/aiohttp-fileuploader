@@ -1,4 +1,5 @@
-from typing import Any
+from collections.abc import Mapping
+from typing import Any, Sequence
 
 from sqlalchemy import (
     Boolean,
@@ -103,7 +104,7 @@ table_geo = Table(
 )
 
 
-async def fetch_one(query: Insert | Update) -> dict[str, Any] | None:
+async def fetch_one(query: Select | Insert | Update) -> dict[str, Any] | None:
     async with engine.begin() as conn:
         cursor: CursorResult = await conn.execute(query)
         result = cursor.first()
@@ -121,6 +122,8 @@ async def execute(query: Insert | Update | Delete) -> None:
         await conn.execute(query)
 
 
-async def insert_many(query: Insert, value: list[dict]) -> None:
+async def insert_many(
+    query: Insert, value: Sequence[Mapping[str, Any]] | Mapping[str, Any] | None
+) -> None:
     async with engine.begin() as conn:
         await conn.execute(query, value)
