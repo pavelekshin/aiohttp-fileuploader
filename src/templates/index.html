@@ -6,7 +6,9 @@
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <link rel="stylesheet" type="text/css" href="/static/style/style.css"/>
     <script>
-        const hideElement = (e, ok) => e.setAttribute('hidden', !!ok);
+        function hideElement(element, ok) {
+            element.setAttribute('hidden', !!ok);
+        };
 
         function buttonFiles() {
             hideElement(main, true);
