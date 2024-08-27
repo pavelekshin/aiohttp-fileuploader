@@ -3,7 +3,6 @@ from typing import Any
 
 from aiohttp import web
 from aiohttp.typedefs import Handler, Middleware
-from aiohttp.web_response import StreamResponse
 
 from src.exception_handlers import (
     base_exception_handler,
@@ -46,7 +45,7 @@ def create_error_middleware(overrides: dict[str | int, Any]) -> Middleware:
     @web.middleware
     async def error_middleware(
         request: web.Request, handler: Handler
-    ) -> StreamResponse:
+    ) -> web.StreamResponse:
         try:
             return await handler(request)
         except web.HTTPException as ex:

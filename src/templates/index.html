@@ -5,92 +5,62 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <link rel="stylesheet" type="text/css" href="/static/style/style.css"/>
-    <script src="/static/js/handler.js"></script>
     <script>
+        const hideElement = (e, ok) => e.setAttribute('hidden', !!ok);
 
-        window.addEventListener("load", (event) => {
-            app.run('main');
-        });
+        function buttonFiles() {
+            hideElement(main, true);
+            httpClient('/files', 'GET');
+            hideElement(files, false);
+        };
 
-        document.addEventListener('DOMContentLoaded', function (event) {
-            app = new handler({
-            store: {},
-            container: "#app",
-            pages: {main: {}, files: {}},
-            url: window.location.origin + window.location.pathname
-        });
-
-        app.addHandler("main", (data)=> {
-            app.go("main");
-            var script = document.createElement('script');
-            script.src = '/static/js/uploader.js';
-            document.body.appendChild(script);
-        })
-
-        app.addHandler("files", (data)=> {
-            app.go('files');
-            var remoteFiles = document.getElementById("remoteFiles");
-            renderFilesResponse(data);
-        });
-    });
-
-    function httpClient(path, callback, method) {
-        const url = window.location.origin + path;
-        var xhr = new XMLHttpRequest();
-        xhr.responseType = 'json';
-        xhr.onreadystatechange = function() {
-            if (xhr.readyState == 4)
-                callback.run('files', xhr.response);
-        }
-        xhr.open(method, url, true); // true for asynchronous
-        xhr.send();
-    };
-
+        function buttonMain() {
+            hideElement(files, true);
+            resetFormState();
+            hideElement(main, false);
+        };
     </script>
 </head>
 <body>
 <div id="content">
     <section id="app">
-        Загружаем
+        <div id="main">
+            <h1>Загрузчик файлов</h1>
+            <div id="dropArea">
+                <p>
+                    <br><br><br><br>Перетащите файл в выделенную зону<br><br><br><br>
+                </p>
+            </div>
+            <form>
+                <input name="file" multiple type="file"
+                       accept="text/csv, application/vnd.ms-excel, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet">
+                <button type="submit" disabled>Загрузить</button>
+            </form>
+
+            <progress value="0" max="100"></progress>
+            <p>
+                <strong>Статус загрузки:</strong>
+                <span id="statusMessage">🤷‍♂ Пока нет загруженных файлов</span>
+            </p>
+
+            <p>
+                <strong>Загружено файлов:</strong>
+                <span id="fileNum">0</span>
+            </p>
+
+            <ul id="fileListMetadata"></ul>
+        </div>
+        <div id="files" hidden="true">
+            <h1 class="center">Страница управления файлами</h1>
+            <strong>Файл | Создан | Cтрок | Статус &#128998; / &#11036; </strong>
+            <ul id="remoteFiles"></ul>
+        </div>
     </section>
 </div>
-
-<template id="main">
-    <h1>Загрузчик файлов</h1>
-    <div id="dropArea">
-        <p>
-            <br><br><br><br>Перетащите файл в выделенную зону<br><br><br><br>
-        </p>
-    </div>
-    <form>
-        <input name="file" multiple type="file"
-               accept="text/csv, application/vnd.ms-excel, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet">
-        <button type="submit" disabled>Загрузить</button>
-    </form>
-
-    <progress value="0" max="100"></progress>
-    <p>
-        <strong>Статус загрузки:</strong>
-        <span id="statusMessage">🤷‍♂ Пока нет загруженных файлов</span>
-    </p>
-
-    <p>
-        <strong>Загружено файлов:</strong>
-        <span id="fileNum">0</span>
-    </p>
-
-    <ul id="fileListMetadata"></ul>
-</template>
-
-<template id="files">
-    <h1 class="center">Страница управления файлами</h1>
-    <strong>Файл | Создан | Cтрок | Статус &#128998; / &#11036; </strong>
-    <ul id="remoteFiles"></ul>
-</template>
-
 <div id="button">
-    <button class="tappable block" onclick="app.run('main')">Загрузка файлов</button>
-    <button class="tappable block" onclick="httpClient('/files', app, 'GET')">Управление</button>
+    <button class="tappable block" onclick="buttonMain();">Загрузка файлов</button>
+    <button class="tappable block" onclick="buttonFiles()">Управление</button>
 </div>
 </body>
+<script src="/static/js/uploader.js"></script>
 </html>

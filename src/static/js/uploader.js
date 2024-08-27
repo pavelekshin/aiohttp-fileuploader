@@ -97,6 +97,18 @@ function uploadFiles(files) {
     xhr.send(data);
 }
 
+function httpClient(path, method) {
+    const url = window.location.origin + path;
+    var xhr = new XMLHttpRequest();
+    xhr.responseType = 'json';
+    xhr.onreadystatechange = function() {
+        if (xhr.readyState == 4)
+            renderFilesResponse(xhr.response);
+    }
+    xhr.open(method, url, true); // true for asynchronous
+    xhr.send();
+}
+
 function renderResponse(response) {
     const json = response;
     fileNum.textContent = json.length;
@@ -137,7 +149,7 @@ function renderFilesResponse(response) {
 
          var htmlData = `
          <div class="files">
-         <div class="alert mb ${cls}" onclick="httpClient('${action}', app, 'POST')">
+         <div class="alert mb ${cls}" onclick="httpClient('${action}', 'POST')">
                 <span class="name">
                     <li>
                         <p>${name}</p>
@@ -146,7 +158,7 @@ function renderFilesResponse(response) {
                     </li>
                 </span>
               </div>
-              <div class="alert mb ${cls}" onclick="httpClient('/${id}/delete', app, 'POST')">
+              <div class="alert mb ${cls}" onclick="httpClient('/${id}/delete', 'POST')">
                 <span class="name">❌</span>
           </div>
          </div>`
