@@ -12,6 +12,8 @@
 - JavaScript vanilla uploader
 - configurable file read (csv only) and db write chunk size
 - custom exceptions with global exceptions handlers
+- mypy type checked
+- ruff linters / formater
 - some data for play find at: https://www.stats.govt.nz/large-datasets/csv-files-for-download/
 - tested on following
   datasets: [Geo data](https://www.stats.govt.nz/assets/Uploads/New-Zealand-business-demography-statistics/New-Zealand-business-demography-statistics-At-February-2023/Download-data/geographic-units-by-industry-and-statistical-area-20002023-descending-order-.zip
@@ -31,7 +33,7 @@ well-structured code:
 ├── docker-compose.yml
 ├── .env
 ├── requremenets.txt
-├── ruff.toml
+├── pyproject.toml
 └── src                                                          -- src
     ├── __init__.py
     ├── app.py

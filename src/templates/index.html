@@ -6,19 +6,31 @@
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <link rel="stylesheet" type="text/css" href="/static/style/style.css"/>
     <script>
-        function hideElement(element, ok) {
-            element.setAttribute('hidden', !!ok);
+
+        function httpClient(path, callback, method) {
+            const url = window.location.origin + path;
+            var xhr = new XMLHttpRequest();
+            xhr.responseType = 'json';
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState == 4)
+                    callback(xhr.response);
+            }
+            xhr.open(method, url, true); // true for asynchronous
+            xhr.send();
+        }
+
+        function hideElement(element, state) {
+            element.setAttribute('hidden', !!state);
         };
 
         function buttonFiles() {
             hideElement(main, true);
-            httpClient('/files', 'GET');
+            httpClient('/files', renderFilesResponse, 'GET');
             hideElement(files, false);
         };
 
         function buttonMain() {
             hideElement(files, true);
-            resetFormState();
             hideElement(main, false);
         };
     </script>
